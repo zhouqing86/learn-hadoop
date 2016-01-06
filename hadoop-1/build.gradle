@@ -18,3 +18,10 @@ dependencies {
     testCompile group: "org.apache.mrunit", name: "mrunit", version: "1.+", classifier: 'hadoop2'
 //    testCompile "org.apache.mrunit:mrunit:1.1.0"
 }
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'Hadoop-MaxTemperature', 'Implementation-Version': version
+        attributes 'Main-Class': 'MaxTemperatureDriver'
+    }
+}
