@@ -1,3 +1,8 @@
+
+./gradlew test
+./gradlew build
+./gradlew jar
+
 在hadoop的master机器上:
 ```
 hadoop fs -conf src/main/conf/hadoop-localhost.xml -ls /
