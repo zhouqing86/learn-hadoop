@@ -32,3 +32,8 @@ hadoop fs -copyFromLocal src/test/fixtures/temperature.txt /input/temperature.tx
 hadoop jar build/libs/hadoop-1-1.0.jar -conf src/main/conf/hadoop-cluster.xml /input/temperature.txt /output/max-temp/
 ```
 
+```
+unset HADOOP_CLASSPATH
+hadoop fs -rm -R /output/max-temp
+hadoop jar build/libs/hadoop-1-1.0.jar -conf src/main/conf/hadoop-cluster.xml -D mapreduce.map.log.level=DEBUG /input/temperature.txt /output/max-temp/
+```
