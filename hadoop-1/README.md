@@ -130,18 +130,21 @@ bin/oozie-setup.sh sharelib create -fs hdfs://node1:9000
 Error: User: root is not allowed to impersonate root
 ```
 
+于是增加oozie用户组和用户名
 ```
 groupadd oozie
 useradd -g oozie oozie
 chgrp -hR oozie .
 chown -R oozie .
-su oozie
+sudo su 
 hadoop fs -mkdir -p /user/oozie
+hadoop fs -put max-temp-flow max-temp-workflow
 hadoop fs -chown oozie:oozie /user/oozie
+su oozie
 bin/oozie-setup.sh sharelib create -fs hdfs://node1:9000
 ```
 
-这时候就可以通过web访问 http://node1:11000.
+这时候就可以通过web访问oozie http://node1:11000.
 
 su oozie
 vim ~/.bashrc
@@ -159,9 +162,9 @@ export SPARK_HOME=/opt/spark-1.5.2-bin-hadoop2.6
 export PATH=$SPARK_HOME/bin:$PATH
 
 export PATH=/opt/oozie-4.1.0/bin:$PATH
-oozie@node1:/vagrant_downloads/hadoop/h
 ```
 
+在当前项目的根目录下
 ```
 export OOZIE_URL="http://localhost:11000/oozie"
 oozie job -config src/test/resources/max-temp-workflow.properties -run
@@ -193,6 +196,13 @@ $HADOOP_HOME/sbin/mr-jobhistory-daemon.sh start historyserver
 
 重新执行oozie的命令后,可以在historyserver的web端查看任务执行情况:
 http://node1:19888/jobhistory
+在我的三台虚拟机构成的虚拟机集群中,我的输入数据是1.7G的2014的Temperature数据, 运行
+```
+HDFS: Number of read operations: Map(42) Reduce(3)
+Launched map tasks: 18
+Total time spent by all map tasks (ms): 1292891
+Map input records: 7684857
+```
 
 可以在oozie中web页面查看结果.
 
