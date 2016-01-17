@@ -1,7 +1,10 @@
-
+Build, Test, Jar
+--------------------------------------------
+```
 ./gradlew test
 ./gradlew build
 ./gradlew jar
+```
 
 在hadoop的master机器上:
 ```
@@ -44,6 +47,8 @@ hadoop jar build/libs/hadoop-1-1.0.jar -conf src/main/conf/hadoop-cluster.xml -D
 ```
 
 Install oozie
+--------------------------------------------
+
 http://oozie.apache.org/docs/4.1.0/DG_QuickStart.html
 
 ```
@@ -218,4 +223,136 @@ oozie的命令
 oozie job -oozie http://localhost:11000/oozie -kill 14-20090525161321-oozie-joe
 oozie job -oozie http://localhost:11000/oozie -config job.properties -rerun 14-20090525161321-oozie-joe 
 bin/oozied.sh start #重启oozie
+```
+
+Install PIG
+--------------------------------------------
+
+http://apache.fayea.com/pig/pig-0.15.0/pig-0.15.0.tar.gz
+下载PIG的包而后解压.
+
+```
+tar zxvf pig-0.15.0.tar.gz -C /opt
+```
+
+vim /root/.bashrc
+
+```
+export PIG_HOME=/opt/pig-0.15.0
+export PATH=$PIG_HOME/bin:$PATH
+```
+
+source /root/.bashrc
+
+
+```
+pig -x local  #local mode
+pig -x mapreduce #mapreduce mode 
+
+```
+
+
+拷贝/etc/passwd到当前目录,而后运行pig的local模式或者mapreduce模式.
+```
+grunt> A = load 'passwd' using PigStorage(':');
+grunt> B = foreach A generate $0 as id;
+grunt> dump B;
+
+```
+
+另pig本身的examples在`/opt/pig-0.15.0/tutorial`目录下.
+
+
+Install HBase
+--------------------------------------------
+
+### HBase in local mode
+
+```
+
+tar zxvf hbase-1.0.2-bin.tar.gz -C /opt
+```
+
+vim conf/hbase-site.xml
+```
+<configuration>
+  <property>
+    <name>hbase.rootdir</name>
+    <value>file:///home/testuser/hbase</value>
+  </property>
+  <property>
+    <name>hbase.zookeeper.property.dataDir</name>
+    <value>/home/testuser/zookeeper</value>
+  </property>
+</configuration>
+```
+You do not need to create the HBase data directory. HBase will do this for you. If you create the directory, HBase will attempt to do a migration, which is not what you want.
+
+
+```
+bin/start-hbase.sh
+./bin/hbase shell
+create 'test', 'cf'
+put 'test', 'row1', 'cf:a', 'value1'
+put 'test', 'row2', 'cf:b', 'value2'
+put 'test', 'row3', 'cf:c', 'value3'
+scan 'test'
+get 'test', 'row1
+bin/stop-hbase.sh'
+```
+
+### HBase in distribution mode
+vim conf/hbase-site.xml
+```
+<configuration>
+<property>
+  <name>hbase.cluster.distributed</name>
+  <value>true</value>
+</property>
+<property>
+  <name>hbase.rootdir</name>
+  <value>hdfs://node1:9000/hbase</value>
+</property>
+</configuration>
+```
+
+
+Install Hive
+--------------------------------------------
+http://apache.fayea.com/hive/hive-1.2.1/apache-hive-1.2.1-bin.tar.gz
+https://cwiki.apache.org/confluence/display/Hive/GettingStarted
+```
+tar zxvf apache-hive-1.2.1-bin.tar.gz -C /opt
+```
+
+vim /root/.bashrc
+```
+export HIVE_HOME=/opt/apache-hive-1.2.1-bin
+export PATH=HIVE_HOME/bin:$PATH
+```
+
+source /root/.bashrc
+
+```
+hadoop fs -mkdir /tmp
+hadoop fs -chmod g+w /tmp
+hadoop fs -mkdir -p /user/hive/warehouse
+hadoop fs -chmod g+w  /user/hive/warehouse
+hive
+```
+
+发现有error
+```
+Found class jline.Terminal, but interface was expected
+```
+
+拷贝最新的jline库到hadoop相应目录下:
+```
+cp lib/jline-2.12.jar $HADOOP_HOME/share/hadoop/yarn/lib
+```
+
+```
+CREATE TABLE pokes (foo INT, bar STRING);
+CREATE TABLE invites (foo INT, bar STRING) PARTITIONED BY (ds STRING);
+SHOW TABLES;
 ```
